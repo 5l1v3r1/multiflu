@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>{{ page.title }}</title>
+
+    	<!-- Customized Bootstrap + Font Awesome -->
+		<link href="css/style.css" rel="stylesheet" media="screen">
+
+		<!-- Favicon -->
+		<link rel="shortcut icon" href="/images/favicon.png"/>
+
+		<script type="text/javascript" src="/js/bootstrap.js"></script>
+
+		<!-- Typekit -->
+		<script>
+			(function(d) {
+				var config = {
+					kitId: 'nzp8tsk',
+					scriptTimeout: 3000
+				},
+				h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='//use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+			})(document);
+		</script>
+
+		<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+			ga('create', 'UA-26244371-3', 'auto');
+			ga('send', 'pageview');
+		</script>
+
+	</head>
+
+	<body>
+		<div class="row">
+			<div class="col-md-3">
+				<div class="spacer"></div>
+				<div class="row">
+					<div class="col-xs-6 io-container">
+						<form class="form-horizontal form-small">
+							<div class="form-group">
+									<label class="col-xs-5 control-label">Tree 1</label>
+									<div class="col-xs-7 controls">
+										<select id="tree1" class="form-control">
+											<option value="ha" selected="selected">ha</option>
+											<option value="na">na</option>
+											<option value="pb1">pb1</option>
+											<option value="pb2">pb2</option>bing
+											<option value="np">np</option>
+											<option value="ma">ma</option>
+											<option value="ns">ns</option>
+											<option value="m">m</option>
+										</select>
+									</div>
+									<label class="col-xs-5 control-label">Tree 2</label>
+									<div class="col-xs-7 controls">
+										<select id="tree2" class="form-control">
+											<option value="ha">ha</option>
+											<option value="na" selected="selected">na</option>
+											<option value="pb1">pb1</option>
+											<option value="pb2">pb2</option>
+											<option value="np">np</option>
+											<option value="ma">ma</option>
+											<option value="ns">ns</option>
+											<option value="m">m</option>
+										</select>
+									<button id="makeTangle">Tangle</button>
+									</div>
+							</div>
+						</form>
+						<div class="spacer"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+					<svg id="treeplot1"></svg>
+					<svg id="tangle"></svg>
+					<svg id="treeplot2"></svg>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+				<div class="bigspacer"></div>
+			</div>
+		</div>
+
+
+		<script type="text/javascript" src="js/thirdparty/d3.min.js"></script>
+		<script type="text/javascript" src="js/thirdparty/d3.tip.js"></script>
+		<script src="js/phyloTree.js"></script>
+		<script src="js/multiTree.js"></script>
+	</body>
+</html>
