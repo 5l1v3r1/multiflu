@@ -27,6 +27,17 @@ const unrootedPlaceSubtree = function(node, nTips){
   }
 };
 
+const applyToChildren = function(node,func){
+  func(node);
+  if (node.terminal){ return;}
+  else{
+    for (let i=0; i<node.children.length; i++){
+      applyToChildren(node.children[i], func);
+    }
+  }
+};
+
+
 var PhyloTree = function(treeJson) {
   this.grid = false;
   this.setDefaults();
@@ -83,6 +94,8 @@ PhyloTree.prototype.setDefaults = function () {
         orientation: [1,1],
         margins: {left:50, right:50, top:50, bottom:50},
         showGrid: true,
+        fillSelected:"#A73",
+        radiusSelected:5
     };
 };
 
@@ -217,16 +230,7 @@ PhyloTree.prototype.unrootedLayout = function(){
 
 PhyloTree.prototype.zoomIntoClade = function(clade, dt) {
   this.nodes.forEach(function(d){d.inView=false; d.update=true;});
-  const kidsVisible = function(node){
-    node.inView=true;
-    if (node.terminal){ return;}
-    else{
-      for (let i=0; i<node.children.length; i++){
-        kidsVisible(node.children[i]);
-      }
-    }
-  };
-  kidsVisible(clade);
+  applyToChildren(clade, function(d){d.inView=true;});
   this.mapToScreen();
   this.updateGeometry(dt);
   if (this.grid) this.addGrid(this.layout);
@@ -591,10 +595,12 @@ PhyloTree.prototype.deSelectBranch = function(node) {
 };
 
 PhyloTree.prototype.selectTip = function(node) {
+  var fill = this.params.fillSelected, r=this.params.radiusSelected;
   this.svg.select("#tip_"+node.n.clade)
-    .style("stroke", function(d) {return d.fill;})
+    .style("stroke", function(d) {return fill;})
     .style("stroke-dasharray", function(d) {return "2, 2";})
-    .style("fill", function(d) { return "white";});
+    .style("fill", function(d) { return fill;})
+    .attr("cr", function(d) { return r;});
 };
 
 PhyloTree.prototype.deSelectTip = function(node) {
@@ -755,6 +761,9 @@ PhyloTree.prototype.tips = function() {
     })
     .on("mouseover", (d) => {
       this.callbacks.onTipHover(d)
+    })
+    .on("mouseout", (d) => {
+      this.callbacks.onTipMouseOut(d)
     })
     .on("click", (d) => {
       this.callbacks.onTipClick(d)
