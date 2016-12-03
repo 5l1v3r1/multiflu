@@ -10,6 +10,7 @@ tangle.attr("width", tangle_width).attr("height",height);
 
 var branchHover = function(node){
     console.log("Hover", node.n.strain);
+
 };
 
 var branchMouseOut = function(node){
