@@ -4,17 +4,49 @@ const node_map = {};
 const height=600;
 const width=600;
 const tangle_width=100;
-const prefix = "yam_3y_";
+const prefix = "/data/yam_3y_";
 const tangle = d3.select("#tangle");
 tangle.attr("width", tangle_width).attr("height",height);
 
 var branchHover = function(node){
     console.log("Hover", node.n.strain);
-
+    for (var ti=0; ti<trees.length; ti++){
+        for (var ni=0; ni<trees[ti].nodes.length; ni++){
+            trees[ti].nodes[ni].update=false;
+        }
+    }
+    var addStyle = function(d){
+        console.log("adding style");
+        d.prevR = d.r;
+        d.prevFill = d.fill;
+        d.prevStroke =d.stroke;
+        d.r = 8;
+        d.fill = "#C93";
+        d.stroke ="#D4A";
+        d.update=true;
+    };
+    applyToChildren(node, addStyle);
+    trees[0].updateMultipleArray('tips', ['r'], ['fill', 'stroke'], dt=0);
+    trees[1].updateMultipleArray('tips', ['r'], ['fill', 'stroke'], dt=0);
 };
 
 var branchMouseOut = function(node){
     console.log("Hover", node.n.strain);
+    for (var ti=0; ti<trees.length; ti++){
+        for (var ni=0; ni<trees[ti].nodes.length; ni++){
+            trees[ti].nodes[ni].update=false;
+        }
+    }
+    var revertStyle = function(d){
+        console.log("adding style");
+        d.r = d.prevR
+        d.fill = d.prevFill
+        d.stroke = d.prevStroke;
+        d.update=true;
+    };
+    applyToChildren(node, revertStyle);
+    trees[0].updateMultipleArray('tips', ['r'], ['fill', 'stroke'], dt=0);
+    trees[1].updateMultipleArray('tips', ['r'], ['fill', 'stroke'], dt=0);
 };
 
 var branchClick = function(node){
@@ -22,18 +54,32 @@ var branchClick = function(node){
 };
 
 var tipHover = function(tip){
-    console.log("tipHover", tip.n.strain);
-    trees[0].selectTip(tip);
-    trees[1].selectTip(tip);
+  for (var ti=0; ti<trees.length; ti++){
+      trees[ti].svg.select("#tip_"+tip.n.clade)
+        .attr("r", 8)
+        .style("stroke", function(d) {return "#DA4";})
+        .style("stroke-dasharray", function(d) {return "none";})
+        .style("fill", function(d) { return "#C93";});
+  }
+  for (var ci=0; ci<tip.tangles.length; ci++){
+    tangle.select("#tangle_"+tip.tangles[ci])
+        .style("stroke","#DA4")
+        .style("stroke-width",3);
+  }
 };
 
 var tipMouseOut = function(tip){
-  console.log("tipHover", tip.n.strain);
   for (var ti=0; ti<trees.length; ti++){
       trees[ti].svg.select("#tip_"+tip.n.clade)
+        .attr("r", function(d){return d.r ||5;})
         .style("stroke", function(d) {return "#AAA";})
         .style("stroke-dasharray", function(d) {return "none";})
         .style("fill", function(d) { return d.fill||"#CCC";});
+  }
+  for (var ci=0; ci<tip.tangles.length; ci++){
+    tangle.select("#tangle_"+tip.tangles[ci])
+        .style("stroke","#CCC")
+        .style("stroke-width",2);
   }
 };
 
@@ -78,11 +124,25 @@ var changeTrees = function() {
 var makeTangle = function(){
     console.log("making tangle");
     const node_pairs = [];
+    for (var ti=0; ti<trees.length; ti++){
+        const tips = trees[ti].nodes.filter(function (d) {return d.terminal;});
+        for (var ni=0; ni<tips.length; ni++){
+            tips[ni].partners = [];
+            tips[ni].tangles = [];
+        }
+    }
+    let tangle_id = 0;
     for (var d in node_map){
         var x = node_map[d]
         for (var n1=0; n1<x[0].length; n1++){
             for (var n2=0; n2<x[1].length; n2++){
-                node_pairs.push([x[0][n1], x[1][n2]]);
+                node_pairs.push([x[0][n1], x[1][n2], tangle_id.toString()]);
+                x[0][n1].partners.push(x[1][n2]);
+                x[1][n2].partners.push(x[0][n1]);
+
+                x[0][n1].tangles.push(tangle_id);
+                x[1][n2].tangles.push(tangle_id);
+                tangle_id+=1;
             }
         }
     }
@@ -90,6 +150,7 @@ var makeTangle = function(){
     tangle.selectAll(".tangles").data(node_pairs).enter()
         .append("path")
         .attr("class","tangles")
+        .attr("id",function(d){return "tangle_"+d[2];})
         .attr("d",function(d){
             var d = "M 0 " + (d[0].yTip).toString() + " L "+tangle_width.toString()+" "+(d[1].yTip).toString();
             return d;
