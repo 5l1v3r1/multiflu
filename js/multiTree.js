@@ -1,6 +1,6 @@
 const trees=[null, null];
 const segments=[null, null];
-const node_map = {};
+var node_map = {};
 const height=600;
 const width=600;
 const tangle_width=100;
@@ -12,41 +12,53 @@ var branchHover = function(node){
     console.log("Hover", node.n.strain);
     for (var ti=0; ti<trees.length; ti++){
         for (var ni=0; ni<trees[ti].nodes.length; ni++){
-            trees[ti].nodes[ni].update=false;
+            trees[ti].nodes[ni].selected=false;
         }
     }
-    var addStyle = function(d){
-        console.log("adding style");
-        d.prevR = d.r;
-        d.prevFill = d.fill;
-        d.prevStroke =d.stroke;
-        d.r = 8;
-        d.fill = "#C93";
-        d.stroke ="#D4A";
-        d.update=true;
+    const tanglesToUpdate = [];
+    var makeCallback = function(){
+	const ttu =tanglesToUpdate;
+	return function(d){
+	if (d.terminal){
+	d.selected=true;
+	for (var i=0; i<d.partners.length; i++){
+	    d.partners[i].selected=true;
+	}
+	for (var i=0; i<d.tangles.length; i++){
+	    ttu.push(d.tangles[i]);
+	}
+	}
     };
-    applyToChildren(node, addStyle);
-    trees[0].updateMultipleArray('tips', ['r'], ['fill', 'stroke'], dt=0);
-    trees[1].updateMultipleArray('tips', ['r'], ['fill', 'stroke'], dt=0);
+    };
+    applyToChildren(node, makeCallback());
+    for (var ti=0; ti<trees.length; ti++){
+	const attrs = {'r': trees[ti].nodes.map(function(d){return d.selected?8:3;})};
+	const styles = {'fill': trees[ti].nodes.map(function(d){return d.selected?"#DA4":"#CCC";}),
+			'stroke': trees[ti].nodes.map(function(d){return d.selected?"#C93":"#CCC";})};
+	    trees[ti].updateMultipleArray('.tip', attrs, styles, dt=0);
+    }
+    for (var ti=0; ti<tanglesToUpdate.length; ti++){
+	tangle.select("#tangle_"+tanglesToUpdate[ti])
+        .style("stroke","#DA4")
+        .style("stroke-width",3);
+    } 
 };
 
 var branchMouseOut = function(node){
-    console.log("Hover", node.n.strain);
     for (var ti=0; ti<trees.length; ti++){
         for (var ni=0; ni<trees[ti].nodes.length; ni++){
-            trees[ti].nodes[ni].update=false;
+            trees[ti].nodes[ni].selected=false;
         }
     }
-    var revertStyle = function(d){
-        console.log("adding style");
-        d.r = d.prevR
-        d.fill = d.prevFill
-        d.stroke = d.prevStroke;
-        d.update=true;
-    };
-    applyToChildren(node, revertStyle);
-    trees[0].updateMultipleArray('tips', ['r'], ['fill', 'stroke'], dt=0);
-    trees[1].updateMultipleArray('tips', ['r'], ['fill', 'stroke'], dt=0);
+    for (var ti=0; ti<trees.length; ti++){
+	const attrs = {'r': trees[ti].nodes.map(function(d){return d.selected?8:3;})};
+	const styles = {'fill': trees[ti].nodes.map(function(d){return d.selected?"#DA4":"#CCC";}),
+			'stroke': trees[ti].nodes.map(function(d){return d.selected?"#C93":"#CCC";})};
+	    trees[ti].updateMultipleArray('.tip', attrs, styles, dt=0);
+    }
+	tangle.selectAll(".tangles")
+        .style("stroke","#CCC")
+        .style("stroke-width",2);
 };
 
 var branchClick = function(node){
@@ -109,6 +121,7 @@ var loadTree = function(tid, name) {
 };
 
 var changeTrees = function() {
+    node_map = {};
     var seg1 = document.getElementById("tree1").value
     var seg2 = document.getElementById("tree2").value
     console.log(seg1, seg2);
@@ -122,8 +135,8 @@ var changeTrees = function() {
 }
 
 var makeTangle = function(){
-    console.log("making tangle");
-    const node_pairs = [];
+    tangle.selectAll(".tangles").remove();
+    var node_pairs = [];
     for (var ti=0; ti<trees.length; ti++){
         const tips = trees[ti].nodes.filter(function (d) {return d.terminal;});
         for (var ni=0; ni<tips.length; ni++){
@@ -146,7 +159,7 @@ var makeTangle = function(){
             }
         }
     }
-    tangle.selectAll(".tangles").remove();
+
     tangle.selectAll(".tangles").data(node_pairs).enter()
         .append("path")
         .attr("class","tangles")

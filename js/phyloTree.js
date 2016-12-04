@@ -702,7 +702,7 @@ PhyloTree.prototype.redrawAttribute = function(treeElem, attr, dt) {
 };
 
 PhyloTree.prototype.updateStyle = function(treeElem, styleElem, callback, dt) {
-  this.updateStyleArray(treeElem, attr,
+  this.updateStyleArray(treeElem, styleElem,
     this.nodes.map(function(d) {
       return callback(d);
     }), dt);
@@ -795,6 +795,9 @@ PhyloTree.prototype.branches = function() {
     })
     .on("mouseover", (d) => {
       this.callbacks.onBranchHover(d)
+    })
+    .on("mouseout", (d) => {
+      this.callbacks.onBranchMouseOut(d)
     })
     .on("click", (d) => {
       this.callbacks.onBranchClick(d)
