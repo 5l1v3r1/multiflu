@@ -22,8 +22,10 @@ var colorTree =function(t1, t2) {
     var nTips= trees[1].numberOfTips;
     var colsPartner = trees[1].nodes.map(function (d){return d.partners?cScale(1.0*d.partners[0].n.clade/nTips):"#CCCCCC";});
     if (trees[0]){
-        trees[0].updateMultipleArray('.tip', {}, {fill:cols, stroke:cols.map(function(d){return d3.rgb(d).darker();})}, 0);
-        trees[1].updateMultipleArray('.tip', {}, {fill:colsPartner, stroke:colsPartner.map(function(d){return d3.rgb(d).darker();})}, 0);
+        var attrs = {'r': trees[0].nodes.map(function(d){return d.selected?highlightR:r;})};
+        trees[0].updateMultipleArray('.tip', attrs, {fill:cols, stroke:cols.map(function(d){return d3.rgb(d).darker();})}, 0);
+        attrs = {'r': trees[1].nodes.map(function(d){return d.selected?highlightR:r;})};
+        trees[1].updateMultipleArray('.tip', attrs, {fill:colsPartner, stroke:colsPartner.map(function(d){return d3.rgb(d).darker();})}, 0);
     }
 }
 
@@ -53,7 +55,7 @@ var branchHover = function(node){
     for (var ti=0; ti<trees.length; ti++){
     const attrs = {'r': trees[ti].nodes.map(function(d){return d.selected?highlightR:r;})};
     const styles = {'fill': trees[ti].nodes.map(function(d){return d.selected?highlightFill:d.fill;}),
-                    'stroke': trees[ti].nodes.map(function(d){return d.selected?highlightStroke:d.fill;})};
+                    'stroke': trees[ti].nodes.map(function(d){return d.selected?highlightStroke:d.stroke;})};
         trees[ti].updateMultipleArray('.tip', attrs, styles, dt=0);
     }
     for (var ti=0; ti<tanglesToUpdate.length; ti++){
@@ -80,8 +82,14 @@ var branchClick = function(node){
 };
 
 var tipHover = function(tip){
-  for (var ti=0; ti<trees.length; ti++){
-      trees[ti].svg.select("#tip_"+tip.n.clade)
+  trees[tip.tree].svg.select("#tip_"+tip.n.clade)
+        .attr("r", highlightR)
+        .style("stroke", function(d) {return highlightStroke;})
+        .style("fill", function(d) { return highlightFill;});
+  for (var pi=0; pi<tip.partners.length; pi++)
+  {
+    var ptip = tip.partners[pi];
+    trees[ptip.tree].svg.select("#tip_"+ptip.n.clade)
         .attr("r", highlightR)
         .style("stroke", function(d) {return highlightStroke;})
         .style("fill", function(d) { return highlightFill;});
@@ -94,13 +102,7 @@ var tipHover = function(tip){
 };
 
 var tipMouseOut = function(tip){
-  for (var ti=0; ti<trees.length; ti++){
-      trees[ti].svg.select("#tip_"+tip.n.clade)
-        .attr("r", function(d){return d.r ||5;})
-        .style("stroke", function(d) {return "#AAA";})
-        .style("stroke-dasharray", function(d) {return "none";})
-        .style("fill", function(d) { return d.fill||"#CCC";});
-  }
+  colorTree();
   for (var ci=0; ci<tip.tangles.length; ci++){
     tangle.select("#tangle_"+tip.tangles[ci])
         .style("stroke","#CCC")
@@ -123,6 +125,7 @@ var loadTree = function(tid, name) {
         const treeplot = d3.select("#treeplot"+tid.toString());
         treeplot.attr("width", width).attr("height", height);
         trees[tid-1].render(treeplot, "rectangular", "div", {orientation:[tid===1?1:-1,1]}, callbacks);
+        trees[tid-1].nodes.forEach(function (d) {return d.tree=tid-1;});
         const tips = trees[tid-1].nodes.filter(function (d) {return d.terminal;});
         for (var ni=0; ni<tips.length; ni++){
             if (typeof node_map[tips[ni].n.strain] === "undefined"){
