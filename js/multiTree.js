@@ -11,7 +11,7 @@ const tangle = d3.select("#tangle");
 tangle.attr("width", tangle_width).attr("height",height);
 const segment_order = {'pb1':0, 'pb2':1, 'pa':2, 'ha':3, 'np':4, 'na':5, 'm':6, 'ns':7}
 const colorby = "ha_ladder";
-let untangle = false;
+let untangle = true;
 const r=3, highlightR = 5;
 const highlightFill = "#DA4", highlightStroke = "#C93";
 const colors =   ["#426FCE", "#4B8DC2", "#59A3AA", "#6BB18D", "#82BA71", "#9CBE5B", "#B7BD4B", "#CFB541", "#DFA43B", "#E68735", "#E35E2D", "#DD3124"];
@@ -186,15 +186,14 @@ var changeTrees = function() {
     var seg2 = document.getElementById("tree2").value
     console.log(tmp_virus, tmp_resolution, seg1, seg2);
     var dataset = tmp_virus +"_" + tmp_resolution +"_";
-    if (seg1!==segments[0] || virus!==tmp_virus || tmp_resolution!==resolution){
-        segments[0]=seg1;
-        loadTree(1,prefix + dataset + seg1);
-    }
-    if (seg2!==segments[1] || virus!==tmp_virus || tmp_resolution!==resolution){
-        segments[1]=seg2;
-        loadTree(2,prefix+ dataset + seg2);
-    }
-    setTimeout( makeTangle, 1000);
+
+    segments[0]=seg1;
+    loadTree(1,prefix + dataset + seg1);
+
+    segments[1]=seg2;
+    loadTree(2,prefix+ dataset + seg2);
+
+    setTimeout( makeTangle, 300);
     virus=tmp_virus;
     resolution=tmp_resolution;
 }
