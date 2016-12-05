@@ -1,10 +1,12 @@
 const trees=[null, null];
 const segments=[null, null];
+let virus="h3n2";
+let resolution="3y";
 var node_map = {};
-const height=600;
+const height=900;
 const width=600;
 const tangle_width=100;
-const prefix = "/data/yam_3y_";
+const prefix = "/data/";
 const tangle = d3.select("#tangle");
 tangle.attr("width", tangle_width).attr("height",height);
 
@@ -138,16 +140,21 @@ var loadTree = function(tid, name) {
 
 var changeTrees = function() {
     node_map = {};
+    var tmp_virus = document.getElementById("virus").value
+    var tmp_resolution = document.getElementById("resolution").value
     var seg1 = document.getElementById("tree1").value
     var seg2 = document.getElementById("tree2").value
-    console.log(seg1, seg2);
-    if (seg1!==segments[0]){
-        loadTree(1,prefix+seg1);
+    console.log(tmp_virus, tmp_resolution, seg1, seg2);
+    var dataset = tmp_virus +"_" + tmp_resolution +"_";
+    if (seg1!==segments[0] || virus!==tmp_virus || tmp_resolution!==resolution){
+        loadTree(1,prefix + dataset + seg1);
     }
-    if (seg2!==segments[1]){
-        loadTree(2,prefix+seg2);
+    if (seg2!==segments[1] || virus!==tmp_virus || tmp_resolution!==resolution){
+        loadTree(2,prefix+ dataset + seg2);
     }
     setTimeout( makeTangle, 300);
+    virus=tmp_virus;
+    resolution=tmp_resolution;
 }
 
 var makeTangle = function(){
@@ -193,14 +200,18 @@ var makeTangle = function(){
 d3.select("#makeTangle").on("click", function(d){console.log("Button pressed"); makeTangle();});
 
 d3.select("#tree1").on("change", function() {
-    var seg = document.getElementById("tree1").value
-    console.log("tree1:", seg);
     changeTrees();
 })
 
 d3.select("#tree2").on("change", function() {
-    var seg = document.getElementById("tree2").value
-    console.log("tree2:", seg);
+    changeTrees();
+})
+
+d3.select("#virus").on("change", function() {
+    changeTrees();
+})
+
+d3.select("#resolution").on("change", function() {
     changeTrees();
 })
 

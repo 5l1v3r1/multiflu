@@ -43,24 +43,39 @@
 			<div class="col-md-3">
 				<div class="spacer"></div>
 				<div class="row">
-					<div class="col-xs-6 io-container">
+					<div class="col-xs-1 io-container">
 						<form class="form-horizontal form-small">
 							<div class="form-group">
-									<label class="col-xs-5 control-label">Tree 1</label>
 									<div class="col-xs-7 controls">
+										<label class="col-xs-5 control-label">Virus</label>
+										<select id="virus" class="form-control">
+											<option value="h3n2">h3n2</option>
+											<option value="h1n1">h1n1</option>
+											<option value="yam">yam</option>
+											<option value="vic">vic</option>
+										</select>
+										<label class="col-xs-5 control-label">Resolution</label>
+										<select id="resolution" class="form-control">
+											<option value="3y">3y</option>
+										</select>
+										<label class="col-xs-5 control-label">Color</label>
+										<select id="colorby" class="form-control">
+											<option value="ha_ladder">ha ladder order</option>
+										</select>
+									</div>
+									<div class="col-xs-7 controls">
+										<label class="col-xs-5 control-label">Tree_1</label>
 										<select id="tree1" class="form-control">
 											<option value="ha" selected="selected">ha</option>
 											<option value="na">na</option>
 											<option value="pb1">pb1</option>
-											<option value="pb2">pb2</option>bing
+											<option value="pb2">pb2</option>
 											<option value="np">np</option>
 											<option value="mp">ma</option>
 											<option value="ns">ns</option>
 											<option value="pa">pa</option>
 										</select>
-									</div>
-									<label class="col-xs-5 control-label">Tree 2</label>
-									<div class="col-xs-7 controls">
+										<label class="col-xs-5 control-label">Tree_2</label>
 										<select id="tree2" class="form-control">
 											<option value="ha">ha</option>
 											<option value="na" selected="selected">na</option>
@@ -72,21 +87,13 @@
 											<option value="pa">pa</option>
 										</select>
 									</div>
-									<label class="col-xs-5 control-label">Color</label>
-									<div class="col-xs-7 controls">
-										<select id="colorby" class="form-control">
-											<option value="ha_ladder">ha ladder order</option>
-										</select>
-									</div>
 							</div>
 						</form>
 						<div class="spacer"></div>
 					</div>
 				</div>
 			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-12">
+			<div class="col-md-9">
 					<svg id="treeplot1"></svg>
 					<svg id="tangle"></svg>
 					<svg id="treeplot2"></svg>
