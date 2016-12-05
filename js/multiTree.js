@@ -9,9 +9,9 @@ const tangle_width=100;
 const prefix = "/data/";
 const tangle = d3.select("#tangle");
 tangle.attr("width", tangle_width).attr("height",height);
-
+const segment_order = {'pb1':0, 'pb2':1, 'pa':2, 'ha':3, 'np':4, 'na':5, 'm':6, 'ns':7}
 const colorby = "ha_ladder";
-
+let untangle = false;
 const r=3, highlightR = 5;
 const highlightFill = "#DA4", highlightStroke = "#C93";
 const colors =   ["#426FCE", "#4B8DC2", "#59A3AA", "#6BB18D", "#82BA71", "#9CBE5B", "#B7BD4B", "#CFB541", "#DFA43B", "#E68735", "#E35E2D", "#DD3124"];
@@ -119,12 +119,52 @@ var tipClick = function(tip){
 const callbacks = {onBranchHover:branchHover, onBranchClick:branchClick, onBranchMouseOut:branchMouseOut,
                    onTipClick:tipClick, onTipHover: tipHover, onTipMouseOut:tipMouseOut}
 
+var postorder = function(node, func){
+    if (node.children){
+        for (var ci=0; ci<node.children.length; ci++){
+            postorder(node.children[ci], func);
+        }
+    }
+    func(node);
+}
+
 var loadTree = function(tid, name) {
     d3.json(name+'_tree.json', function(err,data){
         const tree = d3.layout.tree().size([1,1]);
         const nodes = tree.nodes(data);
-        trees[tid-1] = new PhyloTree(nodes[0]);
         const treeplot = d3.select("#treeplot"+tid.toString());
+        if (tid===2 && untangle){
+            var orderFunc = function() {
+                const other_tree = segment_order[segments[0]];
+                return function (d){return d.attr.ladder_ranks[other_tree];};
+            }
+            var ofunc = orderFunc();
+            nodes.filter(function (d){return typeof d.children!=="undefined";})
+                 .forEach(function(d){
+                    d.children.sort(function(a,b){return ofunc(a)-ofunc(b);});
+                });
+            var processFunc = function(d){
+                var count=0;
+                return function(d){
+                    if (d.children){
+                        var ysum=0;
+                        for (var ci=0; ci<d.children.length; ci++){
+                            ysum+=d.children[ci].yValue;
+                        }
+                        d.yValue = ysum/d.children.length;
+                    }else{
+                        //console.log(d.strain, d.yvalue, count);
+                        d.yValue = count;
+                        count++;
+                    }
+                };
+            }
+            postorder(nodes[0], processFunc());
+            const other_tree = segment_order[segments[0]];
+            nodes.forEach(function(d){d.yvalue=d.yValue;});
+        }
+
+        trees[tid-1] = new PhyloTree(nodes[0]);
         treeplot.attr("width", width).attr("height", height);
         trees[tid-1].render(treeplot, "rectangular", "div", {orientation:[tid===1?1:-1,1]}, callbacks);
         trees[tid-1].nodes.forEach(function (d) {return d.tree=tid-1;});
@@ -147,12 +187,14 @@ var changeTrees = function() {
     console.log(tmp_virus, tmp_resolution, seg1, seg2);
     var dataset = tmp_virus +"_" + tmp_resolution +"_";
     if (seg1!==segments[0] || virus!==tmp_virus || tmp_resolution!==resolution){
+        segments[0]=seg1;
         loadTree(1,prefix + dataset + seg1);
     }
     if (seg2!==segments[1] || virus!==tmp_virus || tmp_resolution!==resolution){
+        segments[1]=seg2;
         loadTree(2,prefix+ dataset + seg2);
     }
-    setTimeout( makeTangle, 300);
+    setTimeout( makeTangle, 1000);
     virus=tmp_virus;
     resolution=tmp_resolution;
 }
@@ -213,6 +255,10 @@ d3.select("#virus").on("change", function() {
 
 d3.select("#resolution").on("change", function() {
     changeTrees();
+})
+
+d3.select("#untangle").on("change", function() {
+    untangle = document.getElementById("untangle").checked;
 })
 
 changeTrees();
