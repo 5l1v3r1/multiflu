@@ -6,7 +6,7 @@ var node_map = {};
 const height=900;
 const width=600;
 const tangle_width=100;
-const prefix = "/data/";
+const prefix = "/data/flu_";
 const tangle = d3.select("#tangle");
 tangle.attr("width", tangle_width).attr("height",height);
 const segment_order = {'pb1':0, 'pb2':1, 'pa':2, 'ha':3, 'np':4, 'na':5, 'm':6, 'ns':7}
@@ -22,7 +22,8 @@ var colorTree =function(t1, t2) {
     var nTips= trees[0].numberOfTips;
     var cols = trees[0].nodes.map(function (d){return cScale(1.0*d.n.clade/nTips);});
     var nTips= trees[1].numberOfTips;
-    var colsPartner = trees[1].nodes.map(function (d){return d.partners?cScale(1.0*d.partners[0].n.clade/nTips):"#CCCCCC";});
+    //var colsPartner = trees[1].nodes.map(function (d){return d.partners?cScale(1.0*d.partners[0].n.clade/nTips):"#CCCCCC";});
+    var colsPartner = trees[1].nodes.map(function (d){return cScale(1.0*d.n.clade/nTips);});
     if (trees[0]){
         var attrs = {'r': trees[0].nodes.map(function(d){return d.selected?highlightR:r;})};
         trees[0].updateMultipleArray('.tip', attrs, {fill:cols, stroke:cols.map(function(d){return d3.rgb(d).darker();})}, 0);
@@ -136,13 +137,15 @@ var loadTree = function(tid, name) {
         if (tid===2 && untangle){
             var orderFunc = function() {
                 const other_tree = segment_order[segments[0]];
-                return function (d){return d.attr.ladder_ranks[other_tree];};
+                //return function (d){return d.attr.ladder_ranks[other_tree];};
+                return function (d){return 1.0;};
             }
             var ofunc = orderFunc();
-            nodes.filter(function (d){return typeof d.children!=="undefined";})
-                 .forEach(function(d){
-                    d.children.sort(function(a,b){return ofunc(a)-ofunc(b);});
-                });
+            // nodes.filter(function (d){return typeof d.children!=="undefined";})
+            //      .forEach(function(d){
+            //         d.children.sort(function(a,b){return ofunc(a)-ofunc(b);});
+            //     });
+            var totalNodes = nodes.filter(function(d){return (typeof d.children=="undefined");}).length;
             var processFunc = function(d){
                 var count=0;
                 return function(d){
@@ -154,7 +157,7 @@ var loadTree = function(tid, name) {
                         d.yValue = ysum/d.children.length;
                     }else{
                         //console.log(d.strain, d.yvalue, count);
-                        d.yValue = count;
+                        d.yValue = totalNodes - count;
                         count++;
                     }
                 };
@@ -166,7 +169,7 @@ var loadTree = function(tid, name) {
 
         trees[tid-1] = new PhyloTree(nodes[0]);
         treeplot.attr("width", width).attr("height", height);
-        trees[tid-1].render(treeplot, "rectangular", "div", {orientation:[tid===1?1:-1,1]}, callbacks);
+        trees[tid-1].render(treeplot, "rectangular", "num_date", {orientation:[tid===1?1:-1,1]}, callbacks);
         trees[tid-1].nodes.forEach(function (d) {return d.tree=tid-1;});
         const tips = trees[tid-1].nodes.filter(function (d) {return d.terminal;});
         for (var ni=0; ni<tips.length; ni++){
@@ -185,15 +188,16 @@ var changeTrees = function() {
     var seg1 = document.getElementById("tree1").value
     var seg2 = document.getElementById("tree2").value
     console.log(tmp_virus, tmp_resolution, seg1, seg2);
-    var dataset = tmp_virus +"_" + tmp_resolution +"_";
 
+    var dataset = tmp_virus+"_"  + seg1 +"_" + tmp_resolution +"_cell_hi";
     segments[0]=seg1;
-    loadTree(1,prefix + dataset + seg1);
+    loadTree(1,prefix + dataset);
 
+    var dataset = tmp_virus+"_"  + seg2 +"_" + tmp_resolution +"_cell_hi";
     segments[1]=seg2;
-    loadTree(2,prefix+ dataset + seg2);
+    loadTree(2,prefix+ dataset);
 
-    setTimeout( makeTangle, 300);
+    setTimeout( makeTangle, 3000);
     virus=tmp_virus;
     resolution=tmp_resolution;
 }
@@ -203,6 +207,7 @@ var makeTangle = function(){
     var node_pairs = [];
     for (var ti=0; ti<trees.length; ti++){
         const tips = trees[ti].nodes.filter(function (d) {return d.terminal;});
+        console.log("tree", ti, ": number of tips:", tips.length);
         for (var ni=0; ni<tips.length; ni++){
             tips[ni].partners = [];
             tips[ni].tangles = [];
