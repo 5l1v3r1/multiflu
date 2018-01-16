@@ -259,7 +259,6 @@ PhyloTree.prototype.mapToScreen = function(){
         this.xScale.domain([d3.min(tmp_xValues), d3.max(tmp_xValues)]);
         this.yScale.domain([d3.min(tmp_yValues), d3.max(tmp_yValues)]);
     }
-
     const tmp_xScale=this.xScale;
     const tmp_yScale=this.yScale;
     this.nodes.forEach(function(d){d.xTip = tmp_xScale(d.x)});

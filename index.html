@@ -61,20 +61,31 @@
 										</select>
 										<label class="col-xs-5 control-label">Color</label>
 										<select id="colorby" class="form-control">
-											<option value="ha_ladder">ha ladder order</option>
-											<option value="cHI">antigenic advance</option>
+											<option value="clade">clades</option>
+											<option value="gt">mutations</option>
 										</select>
 									</div>
+									<input id="gt-color" type="search" placeholder= "protein:pos"  class="form-control">
 									<div class="col-xs-7 controls">
 										<label class="col-xs-5 control-label">Tree_1</label>
 										<select id="tree1" class="form-control">
+											<option value="pb2">pb2</option>
+											<option value="pb1">pb1</option>
+											<option value="pa">pa</option>
 											<option value="ha">ha</option>
+											<option value="np">np</option>
 											<option value="na">na</option>
+											<option value="ns">hs</option>
 										</select>
 										<label class="col-xs-5 control-label">Tree_2</label>
 										<select id="tree2" class="form-control">
+											<option value="pb2">pb2</option>
+											<option value="pb1">pb1</option>
+											<option value="pa">pa</option>
 											<option value="ha">ha</option>
+											<option value="np">np</option>
 											<option value="na">na</option>
+											<option value="ns">hs</option>
 										</select>
 										Untangle<input type="checkbox" id="untangle">
 									</div>
@@ -100,6 +111,7 @@
 
 		<script type="text/javascript" src="/js/thirdparty/d3.min.js"></script>
 		<script type="text/javascript" src="/js/thirdparty/d3.tip.js"></script>
+		<script src="/js/tooltips.js"></script>
 		<script src="/js/phyloTree.js"></script>
 		<script src="/js/multiTree.js"></script>
 	</body>
