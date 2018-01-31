@@ -8,12 +8,10 @@
 		<title>Flu tanglegrams</title>
 
     	<!-- Customized Bootstrap + Font Awesome -->
-		<link href="/css/style.css" rel="stylesheet" media="screen">
+		<link href="/multiflu/css/style.css" rel="stylesheet" media="screen">
 
 		<!-- Favicon -->
 		<link rel="shortcut icon" href="/images/favicon.png"/>
-
-		<script type="text/javascript" src="/js/thirdparty/bootstrap.js"></script>
 
 		<!-- Typekit -->
 		<script>
@@ -39,69 +37,61 @@
 	</head>
 
 	<body>
-		<div class="row">
-			<div class="col-md-2">
-				<div class="spacer"></div>
-				<div class="row">
-					<div class="col-xs-1 io-container">
-						<form class="form-horizontal form-small">
-							<div class="form-group">
-									<div class="col-xs-7 controls">
-										<label class="col-xs-5 control-label">Virus</label>
-										<select id="virus" class="form-control">
-											<option value="h3n2">h3n2</option>
-											<option value="h1n1pdm">h1n1</option>
-											<option value="yam">yam</option>
-											<option value="vic">vic</option>
-										</select>
-										<label class="col-xs-5 control-label">Resolution</label>
-										<select id="resolution" class="form-control">
-											<option value="3y">3y</option>
-											<option value="6y">6y</option>
-										</select>
-										<label class="col-xs-5 control-label">Color</label>
-										<select id="colorby" class="form-control">
-											<option value="clade">clades</option>
-											<option value="gt">mutations</option>
-										</select>
-									</div>
-									<input id="gt-color" type="search" placeholder= "protein:pos"  class="form-control">
-									<div class="col-xs-7 controls">
-										<label class="col-xs-5 control-label">Tree_1</label>
-										<select id="tree1" class="form-control">
-											<option value="pb2">pb2</option>
-											<option value="pb1">pb1</option>
-											<option value="pa">pa</option>
-											<option value="ha">ha</option>
-											<option value="np">np</option>
-											<option value="na">na</option>
-											<option value="ns">hs</option>
-										</select>
-										<label class="col-xs-5 control-label">Tree_2</label>
-										<select id="tree2" class="form-control">
-											<option value="pb2">pb2</option>
-											<option value="pb1">pb1</option>
-											<option value="pa">pa</option>
-											<option value="ha">ha</option>
-											<option value="np">np</option>
-											<option value="na">na</option>
-											<option value="ns">hs</option>
-										</select>
-										Untangle<input type="checkbox" id="untangle">
-									</div>
-							</div>
-						</form>
-						<div class="spacer"></div>
+			<div class="row">
+				<div class="col-lg-2">
+					<div class="spacer"></div>
+					<div class="col-xs-7 controls">
+						<label class="col-xs-5 control-label"><b>Virus</b></label>
+						<select id="virus" class="form-control">
+							<option value="h3n2">h3n2</option>
+							<option value="h1n1pdm">h1n1</option>
+							<option value="yam">yam</option>
+							<option value="vic">vic</option>
+						</select>
+						<label class="col-xs-5 control-label"><b>Resolution</b></label>
+						<select id="resolution" class="form-control">
+							<option value="3y">3y</option>
+							<option value="6y">6y</option>
+						</select>
+						<label class="col-xs-5 control-label"><b>Color</b></label>
+						<select id="colorby" class="form-control">
+							<option value="clade">clades</option>
+							<option value="gt">mutations</option>
+						</select>
+						<input id="gt-color" type="text" placeholder= "protein:pos" size="10">
+					</div>
+					<div class="col-xs-7 controls">
+						<label class="col-xs-5 control-label"><b>Tree 1 (left)</b></label>
+						<select id="tree1" class="form-control">
+							<option value="pb2">pb2</option>
+							<option value="pb1">pb1</option>
+							<option value="pa">pa</option>
+							<option value="ha" selected="selected">ha</option>
+							<option value="np">np</option>
+							<option value="na">na</option>
+							<option value="mp">mp</option>
+							<option value="ns">ns</option>
+						</select>
+						<label class="col-xs-5 control-label"><b>Tree 2 (right)</b></label>
+						<select id="tree2" class="form-control">
+							<option value="pb2">pb2</option>
+							<option value="pb1">pb1</option>
+							<option value="pa">pa</option>
+							<option value="ha">ha</option>
+							<option value="np">np</option>
+							<option value="na" selected="selected">na</option>
+							<option value="mp">mp</option>
+							<option value="ns">ns</option>
+						</select>
+						timetree: <input type="checkbox" id="timetree">
 					</div>
 				</div>
-			</div>
-			<div class="col-md-10">
+				<div class="col-lg-10">
 					<svg id="treeplot1"></svg>
 					<svg id="tangle"></svg>
 					<svg id="treeplot2"></svg>
+				</div>
 			</div>
-		</div>
-
 		<div class="row">
 			<div class="col-md-12">
 				<div class="bigspacer"></div>
@@ -109,10 +99,10 @@
 		</div>
 
 
-		<script type="text/javascript" src="/js/thirdparty/d3.min.js"></script>
-		<script type="text/javascript" src="/js/thirdparty/d3.tip.js"></script>
-		<script src="/js/tooltips.js"></script>
-		<script src="/js/phyloTree.js"></script>
-		<script src="/js/multiTree.js"></script>
+		<script type="text/javascript" src="/multiflu/js/thirdparty/d3.min.js"></script>
+		<script type="text/javascript" src="/multiflu/js/thirdparty/d3.tip.js"></script>
+		<script src="/multiflu/js/tooltips.js"></script>
+		<script src="/multiflu/js/phyloTree.js"></script>
+		<script src="/multiflu/js/multiTree.js"></script>
 	</body>
 </html>

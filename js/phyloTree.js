@@ -259,12 +259,14 @@ PhyloTree.prototype.mapToScreen = function(){
         this.xScale.domain([d3.min(tmp_xValues), d3.max(tmp_xValues)]);
         this.yScale.domain([d3.min(tmp_yValues), d3.max(tmp_yValues)]);
     }
+
     const tmp_xScale=this.xScale;
     const tmp_yScale=this.yScale;
     this.nodes.forEach(function(d){d.xTip = tmp_xScale(d.x)});
     this.nodes.forEach(function(d){d.yTip = tmp_yScale(d.y)});
     this.nodes.forEach(function(d){d.xBase = tmp_xScale(d.px)});
     this.nodes.forEach(function(d){d.yBase = tmp_yScale(d.py)});
+
 
     if (this.layout==="rootToTip" || this.layout==="unrooted"){
         this.nodes.forEach(function(d){d.branch =" M "+d.xBase.toString()+","+d.yBase.toString()+
@@ -807,7 +809,7 @@ PhyloTree.prototype.branches = function() {
     })
     .style("fill", "none")
     .style("stroke-width", function(d) {
-      return d.strokeWidth || 2;
+      return d.strokeWidth || 3;
     })
     .style("cursor", "pointer");
 };

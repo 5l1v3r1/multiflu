@@ -3,21 +3,26 @@ const segments=[null, null];
 let virus="h3n2";
 let resolution="3y";
 var node_map = {};
-const height=900;
-const width=600;
-const tangle_width=100;
-const prefix = "/data/flu_";
+var w = window.innerWidth;
+const width=w*0.35;
+const height=width*1.4;
+const tangle_width=w*0.1;
+const highlightTangleSWidth=2.0;
+const TangleSWidth=0.5;
+const treeStrokeWidth=2.0;
+const prefix = "/multiflu/data/flu_";
 const tangle = d3.select("#tangle");
 tangle.attr("width", tangle_width).attr("height",height);
 const segment_order = {'pb1':0, 'pb2':1, 'pa':2, 'ha':3, 'np':4, 'na':5, 'm':6, 'ns':7}
 let untangle = true;
-const r=3, highlightR = 5;
+const r=w/500, highlightR = w/300;
 const highlightFill = "#DA4", highlightStroke = "#C93";
 const colors =   ["#426FCE", "#4B8DC2", "#59A3AA", "#6BB18D", "#82BA71", "#9CBE5B", "#B7BD4B", "#CFB541", "#DFA43B", "#E68735", "#E35E2D", "#DD3124"];
-var genotypeColors = ["#60AA9E", "#D9AD3D", "#5097BA", "#E67030", "#8EBC66", "#E59637", "#AABD52", "#DF4327", "#C4B945", "#75B681"];
+var genotypeColors = ["#60AA9E", "#D9AD3D", "#5097BA", "#E59637",  "#E67030", "#AABD52","#8EBC66", "#DF4327", "#C4B945", "#75B681"];
 const genericDomain = [ 0, 0.111, 0.222, 0.333, 0.444, 0.555, 0.666, 0.777, 0.888, 1.0 ];
 var cScale;
 var colorby;
+var divergence_measure="div";
 
 var colorTree =function(t1, t2) {
     if (!cScale){
@@ -37,8 +42,10 @@ var colorTree =function(t1, t2) {
     if (trees[0]){
         var attrs = {'r': trees[0].nodes.map(function(d){return d.selected?highlightR:r;})};
         trees[0].updateMultipleArray('.tip', attrs, {fill:cols, stroke:cols.map(function(d){return d3.rgb(d).darker();})}, 0);
+        trees[0].updateMultipleArray('.branch', {}, {fill:cols, stroke:cols}, 0);
         attrs = {'r': trees[1].nodes.map(function(d){return d.selected?highlightR:r;})};
         trees[1].updateMultipleArray('.tip', attrs, {fill:colsPartner, stroke:colsPartner.map(function(d){return d3.rgb(d).darker();})}, 0);
+        trees[1].updateMultipleArray('.branch', {}, {fill:colsPartner, stroke:colsPartner}, 0);
     }
     return "success";
 }
@@ -162,15 +169,15 @@ var branchHover = function(node){
     };
     applyToChildren(node, makeCallback());
     for (var ti=0; ti<trees.length; ti++){
-    const attrs = {'r': trees[ti].nodes.map(function(d){return d.selected?highlightR:r;})};
-    const styles = {'fill': trees[ti].nodes.map(function(d){return d.selected?highlightFill:d.fill;}),
-                    'stroke': trees[ti].nodes.map(function(d){return d.selected?highlightStroke:d.stroke;})};
+        const attrs = {'r': trees[ti].nodes.map(function(d){return d.selected?highlightR:r;})};
+        const styles = {}; //'fill': trees[ti].nodes.map(function(d){return d.selected?highlightFill:d.fill;}),
+                           //'stroke': trees[ti].nodes.map(function(d){return d.selected?highlightStroke:d.stroke;})};
         trees[ti].updateMultipleArray('.tip', attrs, styles, dt=0);
     }
     for (var ti=0; ti<tanglesToUpdate.length; ti++){
     tangle.select("#tangle_"+tanglesToUpdate[ti])
         .style("stroke","#DA4")
-        .style("stroke-width",3);
+        .style("stroke-width",highlightTangleSWidth);
     }
     linkTooltip.show(node.n, this);
 };
@@ -184,13 +191,13 @@ var branchMouseOut = function(node){
     colorTree();
     tangle.selectAll(".tangles")
         .style("stroke","#CCC")
-        .style("stroke-width",2);
+        .style("stroke-width",TangleSWidth);
     linkTooltip.hide(node.n, this);
 };
 
 var branchClick = function(node){
     console.log("click", node.n.strain);
-    trees[node.tree].zoomIntoClade(node);
+    trees[node.tree].zoomIntoClade(node,200);
 };
 
 var tipHover = function(tip){
@@ -282,7 +289,7 @@ var loadTree = function(tid, name) {
 
         trees[tid-1] = new PhyloTree(nodes[0]);
         treeplot.attr("width", width).attr("height", height);
-        trees[tid-1].render(treeplot, "rectangular", "num_date", {orientation:[tid===1?1:-1,1]}, callbacks);
+        trees[tid-1].render(treeplot, "rectangular", divergence_measure, {orientation:[tid===1?1:-1,1]}, callbacks);
         trees[tid-1].nodes.forEach(function (d) {return d.tree=tid-1;});
         const tips = trees[tid-1].nodes.filter(function (d) {return d.terminal;});
         for (var ni=0; ni<tips.length; ni++){
@@ -294,6 +301,12 @@ var loadTree = function(tid, name) {
     });
 };
 
+var toggleTimeTree = function() {
+    for (var tid=0; tid<2; tid++){
+        trees[tid].updateDistance(divergence_measure, 200);
+    }
+}
+
 var changeTrees = function() {
     node_map = {};
     var tmp_virus = document.getElementById("virus").value
@@ -304,17 +317,29 @@ var changeTrees = function() {
 
     var dataset = tmp_virus+"_"  + seg1 +"_" + tmp_resolution;
     segments[0]=seg1;
+    trees[0]=false;
     loadTree(1,prefix + dataset);
 
     var dataset = tmp_virus+"_"  + seg2 +"_" + tmp_resolution;
     segments[1]=seg2;
+    trees[1]=false;
     loadTree(2,prefix+ dataset);
 
-    setTimeout( makeTangle, 1000);
+    cScale=false;
+    var total_time=0;
+    function wait(){
+        if (trees[0]&&trees[1]){
+            makeTangle();
+            colorTree();
+        }else{
+            total_time+=100;
+            console.log("waiting ", total_time);
+            setTimeout(wait, 100);
+        }
+    }
+    wait();
     virus=tmp_virus;
     resolution=tmp_resolution;
-    cScale=false;
-    setTimeout(colorTree, 1000);
 }
 
 var makeTangle = function(){
@@ -363,7 +388,8 @@ d3.select("#colorby").on("change", function() {
     cScale=false;
     if (document.getElementById("colorby").value=='clade'){
         colorby=="clade";
-        colorByClade();
+        document.getElementById("gt-color").value="";
+        colorTree();
     }else if (document.getElementById("colorby").value=='gt'){
         console.log("genotype coloring");
     }
@@ -382,6 +408,7 @@ d3.select("#gt-color").on("keyup", function() {
             colorby="clade";
         }else{
             colorTree();
+            document.getElementById("colorby").value='gt';
         }
     }
 });
@@ -403,8 +430,9 @@ d3.select("#resolution").on("change", function() {
     changeTrees();
 })
 
-d3.select("#untangle").on("change", function() {
-    untangle = document.getElementById("untangle").checked;
+d3.select("#timetree").on("change", function() {
+    divergence_measure = document.getElementById("timetree").checked?"num_date":"div";
+    toggleTimeTree();
 })
 
 colorby = document.getElementById("colorby").value;
